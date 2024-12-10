@@ -4,6 +4,14 @@
   "version": "1.0",
   "description": "Tracks the number of privacy policies accepted while browsing.",
   "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
   "background": {
       "scripts": ["background.js"]
   },
