@@ -1,7 +1,23 @@
-// Check if the page contains the words "Privacy Policy"
-if (document.body.innerText.includes("Privacy Policy")) {
-  const siteUrl = window.location.hostname;
+chrome.storage.local.get(['privacyCounter', 'trackedSites'], ({ privacyCounter = 0, trackedSites = [] }) => {
+    const currentSite = window.location.hostname;
 
-  // Send a message to the background script to update the counter
-  chrome.runtime.sendMessage({ action: "checkPrivacyPolicy", site: siteUrl });
-}
+    // Check if the site has already been tracked
+    if (trackedSites.includes(currentSite)) return;
+
+    // Get the page content
+    const pageText = document.body.innerText;
+
+    // Regex to detect "Privacy" or "Terms"
+    const policyRegex = /\b(?:privacy|terms)\b/i;
+
+    // Check if the text matches the regex
+    if (policyRegex.test(pageText)) {
+        // Increment counter and save the site
+        privacyCounter++;
+        trackedSites.push(currentSite);
+
+        chrome.storage.local.set({ privacyCounter, trackedSites }, () => {
+            console.log(`Privacy-related mentions counted: ${privacyCounter}`);
+        });
+    }
+});
