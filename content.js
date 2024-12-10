@@ -4,20 +4,22 @@ chrome.storage.local.get(['privacyCounter', 'trackedSites'], ({ privacyCounter =
     // Check if the site has already been tracked
     if (trackedSites.includes(currentSite)) return;
 
-    // Get the page content
-    const pageText = document.body.innerText;
+    // Select all anchor (<a>) tags on the page
+    const links = Array.from(document.querySelectorAll('a'));
 
-    // Regex to detect "Privacy" or "Terms"
+    // Regex to match "Privacy" or "Terms" (case-insensitive)
     const policyRegex = /\b(?:privacy|terms)\b/i;
 
-    // Check if the text matches the regex
-    if (policyRegex.test(pageText)) {
+    // Check if any link text matches the regex
+    const foundPolicyLink = links.some(link => policyRegex.test(link.innerText));
+
+    if (foundPolicyLink) {
         // Increment counter and save the site
         privacyCounter++;
         trackedSites.push(currentSite);
 
         chrome.storage.local.set({ privacyCounter, trackedSites }, () => {
-            console.log(`Privacy-related mentions counted: ${privacyCounter}`);
+            console.log(`Privacy-related link found. Count incremented to: ${privacyCounter}`);
         });
     }
 });
