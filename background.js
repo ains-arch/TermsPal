@@ -1,14 +1,14 @@
 // Initialize storage on install
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ privacyCounter: 0, visitedSites: [] });
+browser.runtime.onInstalled.addListener(() => {
+  browser.storage.local.set({ privacyCounter: 0, visitedSites: [] });
 });
 
 // Listen for messages from content scripts
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "checkPrivacyPolicy") {
     const siteUrl = message.site;
 
-    chrome.storage.local.get(["privacyCounter", "visitedSites"], (data) => {
+    browser.storage.local.get(["privacyCounter", "visitedSites"], (data) => {
       const { privacyCounter, visitedSites } = data;
 
       // Check if this site has already been counted
@@ -17,12 +17,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const updatedCounter = privacyCounter + 1;
         const updatedSites = [...visitedSites, siteUrl];
 
-        chrome.storage.local.set({
+        browser.storage.local.set({
           privacyCounter: updatedCounter,
           visitedSites: updatedSites
         });
 
         console.log(`Privacy policy detected on ${siteUrl}. Total count: ${updatedCounter}`);
+
+        // Update the badge text
+        browser.action.setBadgeText({
+          text: updatedCounter.toString()
+        });
       } else {
         console.log(`Privacy policy on ${siteUrl} has already been counted.`);
       }
